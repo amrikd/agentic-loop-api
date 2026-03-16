@@ -160,7 +160,7 @@ async function seed() {
 
     // Batch insert for this team
     if (values.length > 0) {
-      await sql(
+      await sql.query(
         `INSERT INTO pulse_entries (team_id, mood, comment, created_at) VALUES ${values.join(', ')}`
       );
     }
