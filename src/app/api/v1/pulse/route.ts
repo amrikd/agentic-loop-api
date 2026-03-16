@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { getSQL } from '@/lib/db';
 import { jsonResponse, optionsResponse } from '@/lib/cors';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { validateTeamId, validateMood, validateComment } from '@/lib/validation';
@@ -45,13 +45,14 @@ export async function POST(request: Request) {
       return jsonResponse({ error: commentCheck.error }, 400);
     }
 
-    const result = await sql`
+    const sql = getSQL();
+    const rows = await sql`
       INSERT INTO pulse_entries (team_id, mood, comment)
       VALUES (${team_id as string}, ${moodCheck.value}, ${commentCheck.value})
       RETURNING id, created_at, mood, comment
     `;
 
-    const row = result.rows[0];
+    const row = rows[0];
 
     return jsonResponse({
       id: row.id,

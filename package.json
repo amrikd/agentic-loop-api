@@ -10,7 +10,7 @@
     "load-test": "tsx scripts/load-test.ts"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
+    "@neondatabase/serverless": "^1.0.2",
     "dotenv": "^17.3.1",
     "next": "^14.2.0",
     "react": "^18.3.0",

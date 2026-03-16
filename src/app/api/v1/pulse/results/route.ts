@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { getSQL } from '@/lib/db';
 import { jsonResponse, optionsResponse } from '@/lib/cors';
 import { validateTeamId } from '@/lib/validation';
 
@@ -16,7 +16,8 @@ export async function GET(request: Request) {
       return jsonResponse({ error: teamCheck.error }, 400);
     }
 
-    const result = await sql`
+    const sql = getSQL();
+    const rows = await sql`
       SELECT
         COUNT(*) as total,
         ROUND(AVG(mood)::numeric, 1) as average,
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
       WHERE team_id = ${teamId}
     `;
 
-    const row = result.rows[0];
+    const row = rows[0];
     const total = Number(row.total);
 
     return jsonResponse({

@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { getSQL } from '@/lib/db';
 import { jsonResponse, optionsResponse } from '@/lib/cors';
 import { validateTeamId, validateLimit } from '@/lib/validation';
 
@@ -22,7 +22,8 @@ export async function GET(request: Request) {
       return jsonResponse({ error: limitCheck.error }, 400);
     }
 
-    const [entriesResult, countResult] = await Promise.all([
+    const sql = getSQL();
+    const [entries, countRows] = await Promise.all([
       sql`
         SELECT id, mood, created_at
         FROM pulse_entries
@@ -38,8 +39,8 @@ export async function GET(request: Request) {
     ]);
 
     return jsonResponse({
-      entries: entriesResult.rows,
-      total: Number(countResult.rows[0].total),
+      entries,
+      total: Number(countRows[0].total),
     });
   } catch (error) {
     console.error('GET /api/v1/pulse/history error:', error);

@@ -1,8 +1,16 @@
-import { sql } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
+import { config } from 'dotenv';
 
 // Load env vars for local development
-import { config } from 'dotenv';
 config({ path: '.env.local' });
+
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('DATABASE_URL is not set. Run: vercel env pull .env.local');
+  process.exit(1);
+}
+
+const sql = neon(DATABASE_URL);
 
 // --- Comment pools ---
 const positiveComments = [
@@ -65,7 +73,7 @@ function generateMood(weights: number[]): number {
 function generateWeightsForTeam(): number[] {
   // Base distribution: mood 1=5%, 2=15%, 3=30%, 4=35%, 5=15%
   const base = [5, 15, 30, 35, 15];
-  // Add some per-team variation (±5)
+  // Add some per-team variation (+-5)
   return base.map((w) => Math.max(1, w + randomInt(-5, 5)));
 }
 
@@ -152,7 +160,7 @@ async function seed() {
 
     // Batch insert for this team
     if (values.length > 0) {
-      await sql.query(
+      await sql(
         `INSERT INTO pulse_entries (team_id, mood, comment, created_at) VALUES ${values.join(', ')}`
       );
     }
