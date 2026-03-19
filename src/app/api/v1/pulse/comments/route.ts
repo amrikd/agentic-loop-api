@@ -23,16 +23,24 @@ export async function GET(request: Request) {
     }
 
     const sql = getSQL();
-    const rows = await sql`
-      SELECT id, comment, mood, created_at
-      FROM pulse_entries
-      WHERE team_id = ${teamId} AND comment IS NOT NULL
-      ORDER BY created_at DESC
-      LIMIT ${limitCheck.value}
-    `;
+    const [rows, countResult] = await Promise.all([
+      sql`
+        SELECT id, comment, mood, created_at
+        FROM pulse_entries
+        WHERE team_id = ${teamId} AND comment IS NOT NULL
+        ORDER BY created_at DESC
+        LIMIT ${limitCheck.value}
+      `,
+      sql`
+        SELECT COUNT(*)::int AS total
+        FROM pulse_entries
+        WHERE team_id = ${teamId} AND comment IS NOT NULL
+      `,
+    ]);
 
     return jsonResponse({
       comments: rows,
+      total: countResult[0].total,
     });
   } catch (error) {
     console.error('GET /api/v1/pulse/comments error:', error);
