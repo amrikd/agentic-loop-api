@@ -27,14 +27,14 @@ export function validateComment(comment: unknown): { valid: true; value: string 
   if (typeof comment !== 'string') {
     return { valid: false, error: 'Comment exceeds 280 characters.' };
   }
-  const trimmed = comment.trim();
-  if (trimmed.length === 0) {
+  const sanitized = comment.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (sanitized.length === 0) {
     return { valid: true, value: null };
   }
-  if (trimmed.length > 280) {
+  if (sanitized.length > 280) {
     return { valid: false, error: 'Comment exceeds 280 characters.' };
   }
-  return { valid: true, value: trimmed };
+  return { valid: true, value: sanitized };
 }
 
 export function validateLimit(limit: string | null, defaultVal: number, max: number): { valid: true; value: number } | { valid: false; error: string } {
