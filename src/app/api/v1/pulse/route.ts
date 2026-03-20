@@ -2,19 +2,16 @@ import { getSQL } from '@/lib/db';
 import { jsonResponse, optionsResponse } from '@/lib/cors';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { validateTeamId, validateMood, validateComment } from '@/lib/validation';
+import { maybeFail } from '@/lib/chaos';
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
-// Chaos mode: set to true to make ~33% of POSTs fail with 500
-const CHAOS_MODE = true;
-
 export async function POST(request: Request) {
   try {
-    if (CHAOS_MODE && Math.random() < 0.33) {
-      return jsonResponse({ error: 'Service temporarily unavailable. Please retry.' }, 500);
-    }
+    const chaos = maybeFail();
+    if (chaos) return chaos;
 
     let body: unknown;
     try {

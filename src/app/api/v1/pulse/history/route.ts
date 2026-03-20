@@ -1,6 +1,7 @@
 import { getSQL } from '@/lib/db';
 import { jsonResponse, optionsResponse } from '@/lib/cors';
 import { validateTeamId, validateLimit } from '@/lib/validation';
+import { maybeFail } from '@/lib/chaos';
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -8,6 +9,8 @@ export async function OPTIONS() {
 
 export async function GET(request: Request) {
   try {
+    const chaos = maybeFail();
+    if (chaos) return chaos;
     const { searchParams } = new URL(request.url);
     const teamId = searchParams.get('team_id');
     const limitParam = searchParams.get('limit');
