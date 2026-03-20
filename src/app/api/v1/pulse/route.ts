@@ -7,8 +7,19 @@ export async function OPTIONS() {
   return optionsResponse();
 }
 
+// In-memory counter for chaos mode — every 3rd request fails
+let requestCount = 0;
+
 export async function POST(request: Request) {
   try {
+    // Chaos mode: every 3rd request returns a 500
+    if (process.env.CHAOS_MODE === 'true') {
+      requestCount++;
+      if (requestCount % 3 === 0) {
+        return jsonResponse({ error: 'Service temporarily unavailable. Please retry.' }, 500);
+      }
+    }
+
     let body: unknown;
     try {
       body = await request.json();
