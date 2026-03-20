@@ -7,10 +7,12 @@ export async function OPTIONS() {
   return optionsResponse();
 }
 
+// Chaos mode: set to true to make ~33% of POSTs fail with 500
+const CHAOS_MODE = true;
+
 export async function POST(request: Request) {
   try {
-    // Chaos mode: ~33% of requests fail randomly
-    if (process.env.CHAOS_MODE === 'true' && Math.random() < 0.33) {
+    if (CHAOS_MODE && Math.random() < 0.33) {
       return jsonResponse({ error: 'Service temporarily unavailable. Please retry.' }, 500);
     }
 
